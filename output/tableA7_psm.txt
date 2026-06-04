@@ -1,0 +1,21 @@
+	(1)
+VARIABLES	res
+	
+Constant	0.4111***
+	(0.0009)
+	
+Observations	8,632
+R-squared	0.0005
+rank	2
+ll_0	12534
+ll	12536
+r2_a	0.000363
+rss	27.69
+mss	0.0133
+rmse	0.0566
+r2	0.000479
+F	4.136
+df_r	8630
+df_m	1
+Standard errors in parentheses	
+*** p<0.01, ** p<0.05, * p<0.1	

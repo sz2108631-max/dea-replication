@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+.env
+*.ipynb_checkpoints/
+
+# Stata
+*.log
+*.smcl
+*.ster
+
+# macOS
+.DS_Store
+.DS_Store?
+
+# Data files (large / proprietary)
+data/
+Y 的复现数据/
+
+# Output data (large)
+output/replication_panel_own.dta
+output/中间结果/
+
+# IDE
+.vscode/
+.idea/
