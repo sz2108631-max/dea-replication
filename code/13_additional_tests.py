@@ -1,6 +1,5 @@
 """
-额外稳健性 & 机制检验: 融资约束、现金流波动、环境不确定性、产业聚集度、
-                  绿色专利替代DV、倒U型检验
+额外稳健性 & 机制检验: 融资约束缓解、现金流波动降低、倒U型检验
 
 数据来源: /Users/weixuan/Desktop/论文/数据资产与生成式AI创新/
 """
@@ -137,117 +136,7 @@ if r:
                        "标准误": se, "p值": p, "N": n})
 
 # ================================================================
-# TEST 3: 环境不确定性调节效应
-# ================================================================
-print("\n" + "─" * 60)
-print("TEST 3: 环境不确定性调节效应")
-print("─" * 60)
-
-env, _ = pyreadstat.read_dta(DATA_AI / "260302主数据_含环境不确定.dta")
-env["id_stock"] = env["id_stock"].astype(int)
-env["year"] = env["year"].astype(int)
-env_cols = [c for c in env.columns if c.startswith("eu_") or c.startswith("ln_eu")]
-d3 = df.merge(env[["id_stock","year"] + env_cols], on=["id_stock","year"], how="left")
-
-for eu_var in ["eu_total", "eu_circ"]:
-    if eu_var not in d3.columns:
-        continue
-    print(f"\n  {eu_var}: {d3[eu_var].notna().sum():,} non-null")
-
-    # 中位数分组
-    med = d3[eu_var].median()
-    d3["eu_high"] = (d3[eu_var] > med).astype(int)
-
-    # 低不确定性组
-    lo = d3[d3["eu_high"] == 0]
-    r_lo, n_lo = run_fe(lo, "res", "Dea")
-    c_lo, se_lo, p_lo = fmt(r_lo, "Dea") if r_lo else ("N/A","N/A","N/A")
-
-    # 高不确定性组
-    hi = d3[d3["eu_high"] == 1]
-    r_hi, n_hi = run_fe(hi, "res", "Dea")
-    c_hi, se_hi, p_hi = fmt(r_hi, "Dea") if r_hi else ("N/A","N/A","N/A")
-
-    print(f"  {eu_var} 低组: {c_lo} {se_lo} p={p_lo} N={n_lo}")
-    print(f"  {eu_var} 高组: {c_hi} {se_hi} p={p_hi} N={n_hi}")
-    results_all.append({"检验": f"环境不确定性 ({eu_var})", "被解释变量": "res (低不确定性)",
-                       "Dea系数": c_lo, "标准误": se_lo, "p值": p_lo, "N": n_lo})
-    results_all.append({"检验": f"环境不确定性 ({eu_var})", "被解释变量": "res (高不确定性)",
-                       "Dea系数": c_hi, "标准误": se_hi, "p值": p_hi, "N": n_hi})
-
-# ================================================================
-# TEST 4: 产业聚集度调节效应
-# ================================================================
-print("\n" + "─" * 60)
-print("TEST 4: 产业聚集度调节效应")
-print("─" * 60)
-
-agg, _ = pyreadstat.read_dta(DATA_AI / "产业聚集度_城市行业层面.dta")
-agg["year"] = agg["year"].astype(int)
-
-# Bridge: get citycode from env uncertainty data (which has id_stock→citycode mapping)
-# The panel's 'city' is numeric 1-433, not admin codes; use env data to bridge
-env_for_city = env[["id_stock", "year", "citycode"]].drop_duplicates(subset=["id_stock", "year"])
-d4 = df.merge(env_for_city, on=["id_stock", "year"], how="left")
-print(f"  citycode 匹配: {d4['citycode'].notna().sum():,} / {len(d4):,}")
-
-if d4["citycode"].notna().sum() > 100:
-    # City-year level agglomeration (mean lq_emp per city-year)
-    agg_city = agg.groupby(["citycode", "year"])["lq_emp"].mean().reset_index()
-    agg_city["citycode"] = agg_city["citycode"].astype(float)
-    d4["citycode"] = pd.to_numeric(d4["citycode"], errors="coerce")
-    d4 = d4.merge(agg_city, on=["citycode", "year"], how="left")
-
-    if "lq_emp" in d4.columns and d4["lq_emp"].notna().sum() > 100:
-        print(f"  产业聚集度(lq_emp): {d4['lq_emp'].notna().sum():,} non-null")
-        med_lq = d4["lq_emp"].median()
-
-        lo = d4[d4["lq_emp"] <= med_lq]
-        r_lo, n_lo = run_fe(lo, "res", "Dea")
-        c_lo, se_lo, p_lo = fmt(r_lo, "Dea") if r_lo else ("N/A", "N/A", "N/A")
-
-        hi = d4[d4["lq_emp"] > med_lq]
-        r_hi, n_hi = run_fe(hi, "res", "Dea")
-        c_hi, se_hi, p_hi = fmt(r_hi, "Dea") if r_hi else ("N/A", "N/A", "N/A")
-
-        print(f"  低聚集度: {c_lo} {se_lo} p={p_lo} N={n_lo}")
-        print(f"  高聚集度: {c_hi} {se_hi} p={p_hi} N={n_hi}")
-        results_all.append({"检验": "产业聚集度", "被解释变量": "res (低聚集度)",
-                           "Dea系数": c_lo, "标准误": se_lo, "p值": p_lo, "N": n_lo})
-        results_all.append({"检验": "产业聚集度", "被解释变量": "res (高聚集度)",
-                           "Dea系数": c_hi, "标准误": se_hi, "p值": p_hi, "N": n_hi})
-    else:
-        print("  [SKIP] lq_emp 合并失败 - 无有效匹配")
-else:
-    print("  [SKIP] citycode 匹配不足 - 无法进行产业聚集度检验")
-
-# ================================================================
-# TEST 5: Bert开源稳健性 — 绿色专利替代DV
-# ================================================================
-print("\n" + "─" * 60)
-print("TEST 5: 绿色专利替代DV")
-print("─" * 60)
-
-gpat, _ = pyreadstat.read_dta(DATA_AI / "稳健性/创新水平/绿色专利.dta")
-gpat["id_stock"] = gpat["id_stock"].astype(int)
-gpat["year"] = gpat["year"].astype(int)
-d5 = df.merge(gpat[["id_stock","year","LnGreen","LnGreen_Inv","LnGreen_Grant"]],
-              on=["id_stock","year"], how="left")
-print(f"  绿色专利: {d5['LnGreen'].notna().sum():,} non-null")
-
-for v, label in [("LnGreen","绿色专利(总量)"), ("LnGreen_Inv","绿色发明专利"),
-                 ("LnGreen_Grant","绿色专利授权")]:
-    if v not in d5.columns:
-        continue
-    r, n = run_fe(d5, v, "Dea")
-    if r:
-        c, se, p = fmt(r, "Dea")
-        print(f"  Dea → {label}: {c} {se} p={p} N={n:,}")
-        results_all.append({"检验": "绿色专利替代DV", "被解释变量": label, "Dea系数": c,
-                           "标准误": se, "p值": p, "N": n})
-
-# ================================================================
-# TEST 6: 倒U型检验 (Dea² → res)
+# TEST 3: 倒U型检验 (Dea² → res)
 # ================================================================
 print("\n" + "─" * 60)
 print("TEST 6: 倒U型检验")

@@ -357,16 +357,13 @@ do code/03_main_analysis.do
 
 **脚本：** `code/13_additional_tests.py`
 
-在基准回归基础上，使用外部数据源（`/Users/weixuan/Desktop/论文/数据资产与生成式AI创新/`）进行 6 项额外检验：
+在基准回归基础上进行 3 项额外检验：
 
 | # | 检验 | 方法 | 关键结果 |
 |---|------|------|----------|
 | 1 | 融资约束缓解 | Dea → 债券/股权/商业信用融资 + 信贷可得性 | Dea ↑ 债券(+), 商业信用(+), 股权(-) |
 | 2 | 现金流波动降低 | Dea → 现金流波动 | 不显著 (p=0.190) |
-| 3 | 环境不确定性调节 | eu_total / eu_circ 中位数分组 | Dea 仅在低不确定性环境显著 |
-| 4 | 产业聚集度调节 | lq_emp 中位数分组 | 两组均不显著 |
-| 5 | 绿色专利替代DV | Dea → LnGreen / LnGreen_Inv / LnGreen_Grant | Dea 与所有绿色专利指标显著正相关 (p<0.001) |
-| 6 | 倒U型检验 | Dea + Dea² → res | 二次项显著负 (p=0.006), 转折点 Dea=0.69, 在样本内 |
+| 3 | 倒U型检验 | Dea + Dea² → res | 二次项显著负 (p=0.006), 转折点 Dea=0.69, 在样本内 |
 
 所有回归均使用 PanelOLS 双向固定效应（企业 + 年份），聚类标准误。
 输出：`output/additional_tests_results.csv`
