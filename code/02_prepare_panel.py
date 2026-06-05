@@ -210,7 +210,7 @@ for v in ["Dea", "Breadth", "Depth"]:
 print("13. 保存...")
 
 output_vars = [
-    "id", "year", "city",
+    "stkcode", "id", "year", "city",
     "res", "Dea", "Breadth", "Depth",
     "Dea_count", "Breadth_count", "Depth_count",
     "lnage", "lnsize", "klr", "lev", "bsize", "dual", "indrate", "own", "lnrd",
@@ -229,7 +229,10 @@ output_vars = [
 final = pd.DataFrame()
 for v in output_vars:
     if v in df.columns:
-        final[v] = pd.to_numeric(df[v], errors="coerce")
+        if v == "stkcode":
+            final[v] = df[v].astype(str)
+        else:
+            final[v] = pd.to_numeric(df[v], errors="coerce")
 
 if "ind_str" in df.columns and "ind_str" not in final.columns:
     final["ind_str"] = df["ind_str"].astype(str)

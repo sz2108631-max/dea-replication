@@ -14,9 +14,9 @@
   3. 报告主效应系数（论文表2严重缺失——未报告主效应）
 
 数据来源：
-  内部控制指数: ../dea-replication/data/raw/内部控制指数2000-2024.dta
-  交易成本:      ../dea-replication/data/raw/交易成本2000-2024.dta
-  面板数据:      ../dea-replication/output/panel_merged.csv
+  内部控制指数: data/内部控制指数2000-2024.dta
+  交易成本:      data/交易成本2000-2024.dta
+  面板数据:      output/replication_panel_own.dta
 """
 
 import pandas as pd
