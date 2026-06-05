@@ -25,6 +25,25 @@
 pip install -r requirements.txt
 ```
 
+### Step 0：构建 DEA 变量（可选，已有 `data/dea_original.dta`）
+
+```bash
+# 设置 MD&A 文本目录（CMDA 数据库下载的年报文本）
+export CMDA_DIR="/path/to/CMDA_管理层讨论与分析_ALL"
+
+# 0a. 扩展关键词词典（Word2Vec，可选，已提供预扩展词典）
+python code/00_dea_expand_keywords.py
+
+# 0b. 运行 DEA 构建管线（BERT + 规则）
+python code/00_dea_construct.py
+```
+
+**输入：** CMDA 数据库 MD&A 年报文本（`<CMDA_DIR>/<年份>/文本/<stkcode>_<年份>-12-31.txt`）
+
+**输出：** `output/dea_bert_zero-shot.csv`（可替代 `data/dea_original.dta`）
+
+> **注意：** MD&A 文本来自 CMDA（中国上市公司管理层讨论与分析）数据库，需用户自行获取。项目已提供预计算的 `data/dea_original.dta`，无需运行此步即可复现全部回归。
+
 ### Step 1：构建供应链韧性（res_v2）
 
 ```bash
@@ -57,7 +76,85 @@ do code/03_main_analysis.do
 
 ## 数据清洗流程
 
-本项目涉及三个阶段的完整数据处理管线。
+本项目涉及四个阶段的完整数据处理管线。
+
+### Phase 0：构建企业数据要素应用能力（DEA / Breadth / Depth）
+
+**脚本：** `code/00_dea_construct.py`，依赖 `code/dea_module_bert.py` + `code/dea_module_rules.py` + `config/keywords_expanded.json`
+
+#### 0.0 文本来源
+
+从 CMDA 数据库获取上市公司 MD&A 年报文本（2011–2023），仅取 12-31 年报。目录结构：
+
+```
+<CMDA_DIR>/<年份>/文本/<stkcode>_<年份>-12-31.txt
+```
+
+#### 0.1 分句与预处理（Module C）
+
+- 按句末标点（。！？；）和换行切分句子
+- 基于哈工大停用词表计算实词密度，过滤财务表格行（实词密度 < 0.28）
+- 剔除表格标志行（含「单位：元」「√适用」等）
+- 超长句（>480 字）在逗号处二次切分，BERT 512 token 上限保护
+
+#### 0.2 关键词预筛
+
+对每句用关键词词典快速扫描（`quick_has_keyword`），过滤不含任何关键词的句子。关键词词典见 `config/keywords_expanded.json`：
+
+| 维度 | 类别 | 核心词（core） | 辅助词（auxiliary） |
+|------|------|---------------|---------------------|
+| **广度** | 数据基础设施 | 服务器、数据中心、GPU、算力、云化… | — |
+| | 数据处理与分析 | 并行计算、数据分析、数据挖掘… | — |
+| | 数据存储与管理 | 数据仓库、数据湖、分布式存储… | — |
+| | 数据安全与治理 | 数据加密、访问控制、数据治理… | — |
+| | 业务应用场景 | 智能制造、智慧城市、数字营销… | 数字化、智能化、信息化… |
+| **深度** | 战略定位 | 数据驱动、数据中台、数据资产化… | 数字化转型、数据战略… |
+| | 组织保障 | 首席数据官、数据委员会… | — |
+| | 数据治理体系 | 数据标准、数据质量、主数据管理… | 数据管理、信息管理… |
+| | 技术能力深度 | 深度学习、NLP、知识图谱、数字孪生… | AI、人工智能、大数据… |
+| | 业务融合深度 | 精准营销、智能风控、数据决策… | 技术赋能、互联网技术… |
+
+> 关键词词典可通过 `code/00_dea_expand_keywords.py` 从种子词（`keywords.json`）用 Word2Vec Skip-Gram（dim=200, window=10, cos≥0.75）自动扩展。
+
+#### 0.3 BERT 否定过滤（Module B）
+
+两阶段精判，对应论文阈值 0.60：
+
+**阶段一：正则预筛（`regex_prefilter`）**
+- 明确否定（尚未部署、并未引入、不具备条件…）→ 直接排除
+- 明确未来计划（计划/拟/将 + 建立/引入/构建…）→ 直接排除
+- 处于探索/起步阶段（尚处于研究阶段…）→ 直接排除
+- 含模糊否定词（未/不/没/无）→ 进入 BERT 精判
+- 其余 → 直接保留
+
+**阶段二：BERT 零样本 NLI 分类（`BertDeploymentClassifier`）**
+- 模型：`IDEA-CCNL/Erlangshen-Roberta-110M-NLI`（中文 NLI，本地 `models/` 目录）
+- 假设模板：
+  - "该公司已实际部署或应用了相关数据技术"
+  - "该描述仅为方向性表达或否定性陈述"
+- 阈值：P(部署) ≥ 0.60 → 保留，否则过滤
+
+#### 0.4 场景约束计数（Module C）
+
+对通过 BERT 的句子，匹配关键词并分类计数：
+
+1. 找句子中所有广度词/深度词，区分核心词（core）和辅助词（auxiliary）
+2. **有核心词：** core + aux 全部计入
+3. **仅有辅助词：** 检查是否为口号式笼统表述（「持续推进数字化转型」「不断提升智能化水平」等）→ 是则全部不计入；否则正常计入
+
+#### 0.5 量化与输出
+
+- **主指标（对数形式）：**
+  - `Breadth = ln(广度词频 + 1)`
+  - `Depth = ln(深度词频 + 1)`
+  - `Dea = ln(总词频 + 1)`
+- **稳健性指标（密度形式）：**
+  - `Dea_count = 总词频 / 有效字数 × 1000`
+  - 有效字数 = MD&A 文本剔除停用词、英文、数字、标点后的汉字数
+
+输出：`output/dea_bert_zero-shot.csv`（已预计算为 `data/dea_original.dta`，无需重新运行）
+
+---
 
 ### Phase 1：构建企业供应链韧性指标 `res_v2`
 
@@ -214,7 +311,15 @@ do code/03_main_analysis.do
 ```
 .
 ├── paper/                            原论文、附录、原始程序
+├── config/
+│   ├── keywords.json                 种子关键词（附录2）
+│   ├── keywords_expanded.json        Word2Vec扩展词典
+│   └── hit_stopwords.txt             哈工大停用词表
 ├── code/
+│   ├── 00_dea_construct.py           DEA 变量构建管线（BERT + 规则）
+│   ├── 00_dea_expand_keywords.py     关键词 Word2Vec 扩展
+│   ├── dea_module_bert.py            Module B：BERT 否定过滤器
+│   ├── dea_module_rules.py           Module C：场景约束 + 中文分句
 │   ├── 01_construct_resilience.py    构建 res_v2
 │   ├── 02_prepare_panel.py           合并分析面板
 │   ├── 03_main_analysis.do           Stata 主回归

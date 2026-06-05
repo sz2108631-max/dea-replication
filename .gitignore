@@ -43,3 +43,8 @@ raw_data/上市公司供应链数字化DID数据.dta
 raw_data/分析师关注.dta
 raw_data/智能制造*.xls
 raw_data/计算代码.do
+
+# DEA construction large files
+config/word2vec_mda.model*
+cmda_texts/
+models/Erlangshen-Roberta-110M-NLI/
