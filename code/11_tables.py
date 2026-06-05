@@ -142,7 +142,7 @@ def run_and_print_table(title, specs, dep_var="res", note=""):
 
 print("\n" + "█" * 100)
 print("  表1：基准回归 — 数据要素应用能力与供应链韧性")
-print("  被解释变量：供应链韧性（Res）")
+print("  被解释变量：企业供应链韧性（res）")
 print("█" * 100)
 
 run_and_print_table("表1 Panel A: Dea 逐步加入控制变量",
@@ -422,7 +422,7 @@ for dep_var in scm_dep_vars:
     print(row)
 
 # Panel B: Supply chain structure → Res
-print(f"\n  表4 Panel B: 供应链结构 → 供应链韧性（被解释变量=Res）")
+print(f"\n  表4 Panel B: 供应链结构 → 供应链韧性（被解释变量=res）")
 print(f"  {'供应链指标':<18} {'系数':>22} {'N':>10}")
 print(f"  {'─'*50}")
 for dep_var in scm_dep_vars:
@@ -622,7 +622,7 @@ print("  变量定义")
 print("█" * 100)
 
 var_defs = [
-    ("被解释变量", "Res", "供应链韧性", "11个财务子指标经TOPSIS方法聚合，取值范围[0,1]，越大表示韧性越强"),
+    ("被解释变量", "res", "企业供应链韧性", "11个财务子指标经TOPSIS方法聚合，取值范围[0,1]，越大表示韧性越强"),
     ("核心解释变量", "Dea", "数据要素应用能力", "MD&A文本经BERT零样本NLI计算关键词相似度×权重聚合，连续变量"),
     ("", "Breadth", "应用广度", "DEA覆盖的关键词类别广度（各类别关键词命中数的对数和）"),
     ("", "Depth", "应用深度", "DEA在各关键词类别中的平均深度（各类别内相似度均值的对数）"),
@@ -775,7 +775,7 @@ for dep_var in scm_dep_vars:
                          "系数": c, "标准误": se, "p值": p, "N": r.nobs})
     r = run_fe(s, OUTCOME, [dep_var] + CONTROLS)
     c, se, p = _safe(r, dep_var)
-    scm_rows.append({"Panel": "B_供应链到Res", "被解释变量": "Res", "解释变量": dep_var,
+    scm_rows.append({"Panel": "B_供应链到Res", "被解释变量": "res", "解释变量": dep_var,
                      "系数": c, "标准误": se, "p值": p, "N": r.nobs})
 for var in scm_available:
     s = s_scm0.dropna(subset=[var]).copy()
@@ -784,7 +784,7 @@ for var in scm_available:
     s[f"Dea_x_{var}"] = s["Dea_c"] * s[f"{var}_c"]
     r = run_fe(s, OUTCOME, ["Dea_c", f"{var}_c", f"Dea_x_{var}"] + CONTROLS)
     c, se, p = _safe(r, f"Dea_x_{var}")
-    scm_rows.append({"Panel": "C_交互项", "被解释变量": "Res", "解释变量": f"Dea_x_{var}",
+    scm_rows.append({"Panel": "C_交互项", "被解释变量": "res", "解释变量": f"Dea_x_{var}",
                      "系数": c, "标准误": se, "p值": p, "N": r.nobs})
     # 分组
     med = s[var].median()
