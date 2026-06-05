@@ -21,6 +21,10 @@ Y_DATA = ROOT / "raw_data"
 CTRL_PATH = DATA / "常用控制变量2000_2024_Ver3.1.dta"
 CITE_PATH = DATA / "变量_被引证.xlsx"
 
+# Ensure output directories exist
+(OUT / "中间结果").mkdir(parents=True, exist_ok=True)
+OUT.mkdir(parents=True, exist_ok=True)
+
 # ============================================================
 # 可配置参数
 # ============================================================
@@ -98,17 +102,20 @@ grant_pat['year'] = grant_pat['会计年度'].astype(int)
 grant_pat = grant_pat.rename(columns={'授权专利质量': 'grant_knowledge_width'})
 grant_pat = grant_pat[['stkcode','year','grant_knowledge_width']]
 
-cite = pd.read_excel(CITE_PATH)
-cite = cite.dropna(subset=['年份'])
-cite['year'] = cite['年份'].astype(int)
-# 股票代码_被引证 = 被引用方(收到引用的公司), 股票代码 = 引用方
-cite['stkcode'] = cite['股票代码_被引证'].apply(
-    lambda x: str(int(x)).zfill(6) if pd.notna(x) else '')
-cite['citing_code'] = cite['股票代码'].astype(str).str.zfill(6)
-cite['is_self'] = cite['stkcode'] == cite['citing_code']
-cite_ext = cite[~cite['is_self']]
-firm_cite = cite_ext.groupby(['stkcode','year'])['Citations'].sum().reset_index()
-firm_cite['ln_citation'] = np.log(firm_cite['Citations'] + 1)
+if CITE_PATH.exists():
+    cite = pd.read_excel(CITE_PATH)
+    cite = cite.dropna(subset=['年份'])
+    cite['year'] = cite['年份'].astype(int)
+    cite['stkcode'] = cite['股票代码_被引证'].apply(
+        lambda x: str(int(x)).zfill(6) if pd.notna(x) else '')
+    cite['citing_code'] = cite['股票代码'].astype(str).str.zfill(6)
+    cite['is_self'] = cite['stkcode'] == cite['citing_code']
+    cite_ext = cite[~cite['is_self']]
+    firm_cite = cite_ext.groupby(['stkcode','year'])['Citations'].sum().reset_index()
+    firm_cite['ln_citation'] = np.log(firm_cite['Citations'] + 1)
+else:
+    print(f"  [WARN] Citation data not found: {CITE_PATH}, setting ln_citation=0")
+    firm_cite = pd.DataFrame(columns=['stkcode','year','ln_citation'])
 
 # ============================================================
 # 第一步: 构建11个三级指标 (复用已验证的逻辑)

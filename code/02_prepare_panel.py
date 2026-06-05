@@ -11,7 +11,10 @@ DATA = ROOT / "data"
 OUT = ROOT / "output"
 INTER = OUT / "中间结果"
 
-# 控制变量文件 (常用控制变量2000-2024 Ver3.1)
+# Ensure output directories exist
+INTER.mkdir(parents=True, exist_ok=True)
+OUT.mkdir(parents=True, exist_ok=True)
+
 CTRL_PATH = DATA / "常用控制变量2000_2024_Ver3.1.dta"
 
 # ============================================================
