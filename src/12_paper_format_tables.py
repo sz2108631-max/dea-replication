@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 ROOT = Path(__file__).resolve().parent.parent
 OUT  = ROOT / "output"
 DATA = ROOT / "data"
-OLD_OUT = Path(__file__).resolve().parent.parent.parent / "dea-replication" / "output"
+OLD_OUT = Path(__file__).resolve().parent.parent / "output"
 OUT.mkdir(exist_ok=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════

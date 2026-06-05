@@ -17,9 +17,9 @@ warnings.filterwarnings('ignore')
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "output"
 DATA = ROOT / "data"
-Y_DATA = ROOT / "Y 的复现数据"
-CTRL_PATH = "/Users/weixuan/Documents/论文复现/CMDA_管理层讨论与分析_ALL/常用控制变量2000_2024_Ver3.1.dta"
-CITE_PATH = "/Users/weixuan/Desktop/数据资产与生成式AI创新/算力_数据回流/变量_被引证.xlsx"
+Y_DATA = ROOT / "raw_data"
+CTRL_PATH = DATA / "常用控制变量2000_2024_Ver3.1.dta"
+CITE_PATH = DATA / "变量_被引证.xlsx"
 
 # ============================================================
 # 可配置参数

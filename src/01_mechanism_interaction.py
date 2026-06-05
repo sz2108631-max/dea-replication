@@ -32,8 +32,8 @@ OUT  = ROOT / "output"
 OUT.mkdir(exist_ok=True)
 
 # 引用原有项目的输出和数据
-OLD_OUT  = Path(__file__).resolve().parent.parent.parent / "dea-replication" / "output"
-OLD_DATA = Path(__file__).resolve().parent.parent.parent / "dea-replication" / "data" / "raw"
+OLD_OUT  = Path(__file__).resolve().parent.parent / "output"
+OLD_DATA = Path(__file__).resolve().parent.parent / "data"
 
 # ── 读取面板数据 ────────────────────────────────────────────────────────────────
 df_raw = pd.read_csv(OLD_OUT / "panel_merged.csv")

@@ -19,7 +19,7 @@ build/
 
 # Data files (large / proprietary)
 data/
-Y 的复现数据/
+raw_data/
 
 # Output data (large)
 output/replication_panel_own.dta

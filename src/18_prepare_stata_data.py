@@ -12,7 +12,7 @@ OUT = ROOT / "output"
 INTER = OUT / "中间结果"
 
 # 控制变量文件 (常用控制变量2000-2024 Ver3.1)
-CTRL_PATH = "/Users/weixuan/Documents/论文复现/CMDA_管理层讨论与分析_ALL/常用控制变量2000_2024_Ver3.1.dta"
+CTRL_PATH = DATA / "常用控制变量2000_2024_Ver3.1.dta"
 
 # ============================================================
 # 1. 加载 DEA 数据 + 控制变量

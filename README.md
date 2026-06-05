@@ -21,7 +21,7 @@ The project constructs a firm-level supply chain resilience measure (`res_v2`) u
 │   ├── 06_iv_regression.py
 │   └── 20_descriptive_stats.py
 ├── data/                       # Input data files
-├── Y 的复现数据/                # Raw financial and patent data
+├── raw_data/                # Raw financial and patent data
 └── output/                     # Regression output tables
 ```
 
@@ -43,7 +43,7 @@ pip install pandas numpy scikit-learn pyreadstat scipy openpyxl
 python src/24_construct_res_v2.py
 ```
 
-This reads raw financial data from `Y 的复现数据/` and produces `output/中间结果/res_v2_panel.dta`.
+This reads raw financial data from `raw_data/` and produces `output/中间结果/res_v2_panel.dta`.
 
 ### Step 2: Prepare the analysis dataset
 

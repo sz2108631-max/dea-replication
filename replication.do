@@ -1,6 +1,5 @@
 /*===========================================================================
- * 巫强等(2026) 完整复现 - 使用自测算 DEA 数据
- * 原始代码: CMDA_管理层讨论与分析_ALL/原文及附件/程序.do
+ * 巫强等(2026) 完整复现
  * 回归设定: reghdfe res Dea $c, absorb(id year) cluster(city)
  *===========================================================================*/
 
@@ -13,7 +12,7 @@ cap mkdir output
 * 0. 数据导入
 * ============================================================================
 
-use "/Users/weixuan/Documents/论文复现/dea-replication-v2/output/replication_panel_own.dta", clear
+use "output/replication_panel_own.dta", clear
 
 di _n ">>> 关键变量检查:"
 foreach v in Dea Breadth Depth Dea_count Breadth_count Depth_count ///

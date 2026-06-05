@@ -31,8 +31,8 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT  = ROOT / "output"
 OUT.mkdir(exist_ok=True)
 
-OLD_OUT  = Path(__file__).resolve().parent.parent.parent / "dea-replication" / "output"
-OLD_DATA = Path(__file__).resolve().parent.parent.parent / "dea-replication" / "data" / "raw"
+OLD_OUT  = Path(__file__).resolve().parent.parent / "output"
+OLD_DATA = Path(__file__).resolve().parent.parent / "data"
 CTRL_FILE = OLD_DATA / "常用控制变量2000_2024_Ver3.1.dta"
 ENV_FILE  = OLD_DATA / "环境不确定性1999-2024.dta"
 

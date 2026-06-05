@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT  = ROOT / "output"
 OUT.mkdir(exist_ok=True)
 
-OLD_OUT = Path(__file__).resolve().parent.parent.parent / "dea-replication" / "output"
+OLD_OUT = Path(__file__).resolve().parent.parent / "output"
 
 # ── 读取数据 ──────────────────────────────────────────────────────────────────
 df_raw = pd.read_csv(OLD_OUT / "panel_merged.csv")
