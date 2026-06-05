@@ -16,9 +16,6 @@ build/
 # macOS
 .DS_Store
 
-# Large unnecessary data (5.7 GB)
-data/数商识别/
-
 # Generated outputs (reproducible via pipeline)
 output/replication_panel_own.dta
 output/中间结果/
@@ -26,3 +23,23 @@ output/中间结果/
 # IDE
 .vscode/
 .idea/
+
+# Not used by core pipeline
+data/智算中心_DiD面板_*.dta
+data/人工智能应用能力_*.dta
+data/一体化专业化计算结果.dta
+data/业务复杂度.dta
+data/digital_transform_zhao.dta
+data/cashflow_vol.dta
+data/patents.xlsx
+data/ai_patents.dta
+data/企业全要素生产率计算结果*.dta
+data/企业数据要素应用能力.xlsx
+data/A股上市公司人工智能投资水平*.dta
+data/上市公司-内源融资*.dta
+data/上市公司-工业机器人*.dta
+data/地级市-数据要素市场化*.xlsx
+raw_data/上市公司供应链数字化DID数据.dta
+raw_data/分析师关注.dta
+raw_data/智能制造*.xls
+raw_data/计算代码.do
