@@ -1,7 +1,7 @@
 """
 按论文附录1严格重新构造企业供应链韧性 (Res)
 修正项:
-  1. Sigma地标选择: γ=ρ×δ ≥ μ+2σ (原错误: 仅用δ)
+  1. Sigma密度峰筛选: γ=ρ×δ ≥ μ+2σ (原错误: 仅用δ)
   2. TOPSIS: 静态全样本池化 (原: 逐年动态)
   3. 参数可配置: dc_percentile, sigma_multiplier, outlier_sigma
 """
@@ -32,7 +32,7 @@ DC_PERCENTILE = 2.0     # 截断距离分位数 (越小越严格)
 SIGMA_MULT = 2.0         # Sigma阈值倍数 (论文μ+2σ)
 OUTLIER_SIGMA = 2.5      # 异常值剔除σ倍数 (越小剔除越多)
 TOPSIS_MODE = 'dynamic'  # 'static'=全样本池化(论文方式), 'dynamic'=逐年
-N_SAMPLE_LANDMARK = 5000 # 地标选择子样本数
+N_SAMPLE_LANDMARK = 5000 # 密度峰筛选子样本数
 
 print(f"参数配置:")
 print(f"  dc_percentile = {DC_PERCENTILE}")
@@ -249,16 +249,16 @@ print(f"  整体重构MSE: {mse:.6f}")
 print(f"  潜在特征Z: mean={np.round(Z.mean(axis=0),4)}, std={np.round(Z.std(axis=0),4)}")
 
 # ============================================================
-# 第四步: Sigma原则地标中心选择 (修正版: γ=ρ×δ)
+# 第四步: Sigma原则聚类中心选择 (修正版: γ=ρ×δ)
 # ============================================================
 print("\n" + "=" * 60)
-print("第四步: Sigma原则地标中心选择 (γ=ρ×δ ≥ μ+2σ)...")
+print("第四步: Sigma原则聚类中心选择 (γ=ρ×δ ≥ μ+2σ)...")
 
 from scipy.spatial.distance import cdist
 
 N = Z.shape[0]
 
-# 随机子样本做地标选择 (内存限制)
+# 随机子样本做密度峰筛选 (内存限制)
 if N > N_SAMPLE_LANDMARK:
     rng = np.random.default_rng(42)
     sample_idx = rng.choice(N, N_SAMPLE_LANDMARK, replace=False)
@@ -268,7 +268,7 @@ else:
     Z_sample = Z
 
 n_s = Z_sample.shape[0]
-print(f"  地标选择子样本: {n_s:,} / {N:,}")
+print(f"  密度峰筛选子样本: {n_s:,} / {N:,}")
 
 # 计算子样本成对距离
 D_sample = cdist(Z_sample, Z_sample)
@@ -302,12 +302,12 @@ print(f"  δ: mean={delta.mean():.4f}, std={delta.std():.4f}")
 print(f"  γ=ρ×δ: mean={gamma_mean:.4f}, std={gamma_std:.4f}")
 print(f"  阈值 (μ+{SIGMA_MULT}σ): {threshold:.4f}")
 
-# 候选地标: γ_i ≥ μ + 2σ
+# 候选聚类中心: γ_i ≥ μ + 2σ
 candidate_mask = gamma >= threshold
 candidates = np.where(candidate_mask)[0]
-print(f"  候选地标数: {len(candidates)} / {n_s}")
+print(f"  候选聚类中心数: {len(candidates)} / {n_s}")
 
-# 去冗余: 若两个地标距离 < dc, 只保留密度ρ更高的
+# 去冗余: 若两个聚类中心距离 < dc, 只保留密度ρ更高的
 selected_sub = []
 if len(candidates) > 0:
     sorted_by_rho = candidates[np.argsort(-rho[candidates])]
@@ -323,18 +323,18 @@ if len(candidates) > 0:
 else:
     selected_sub = np.array([])
 
-print(f"  去冗余后地标数: {len(selected_sub)}")
+print(f"  去冗余后聚类中心数: {len(selected_sub)}")
 
 # 映射回全样本
 if len(selected_sub) > 0:
     landmark_global_idx = sample_idx[selected_sub]
     Z_landmarks = Z[landmark_global_idx]
 
-    # 全样本到地标的距离
+    # 全样本到聚类中心的距离
     D_to_landmarks = cdist(Z, Z_landmarks)
     min_dist = D_to_landmarks.min(axis=1)
 
-    # 异常值: 到最近地标距离 > μ + OUTLIER_SIGMA*σ
+    # 异常值: 到最近聚类中心距离 > μ + OUTLIER_SIGMA*σ
     md_mean = min_dist.mean()
     md_std = min_dist.std()
     outlier_threshold = md_mean + OUTLIER_SIGMA * md_std
@@ -347,7 +347,7 @@ if len(selected_sub) > 0:
 else:
     normal_mask = np.ones(N, dtype=bool)
     landmark_global_idx = np.array([])
-    print(f"  无地标中心，保留全部样本")
+    print(f"  无聚类中心，保留全部样本")
 
 # 筛选正常样本
 Z_normal = Z[normal_mask]
