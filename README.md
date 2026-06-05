@@ -353,6 +353,24 @@ do code/03_main_analysis.do
 - 固定效应：企业（`id`）+ 年份（`year`），聚类标准误：城市（`city`）
 - 生成 22 个回归表格（表 1–5 + 附录 A6–A11），输出至 `output/tables/`
 
+### 额外稳健性 & 机制检验
+
+**脚本：** `code/13_additional_tests.py`
+
+在基准回归基础上，使用外部数据源（`/Users/weixuan/Desktop/论文/数据资产与生成式AI创新/`）进行 6 项额外检验：
+
+| # | 检验 | 方法 | 关键结果 |
+|---|------|------|----------|
+| 1 | 融资约束缓解 | Dea → 债券/股权/商业信用融资 + 信贷可得性 | Dea ↑ 债券(+), 商业信用(+), 股权(-) |
+| 2 | 现金流波动降低 | Dea → 现金流波动 | 不显著 (p=0.190) |
+| 3 | 环境不确定性调节 | eu_total / eu_circ 中位数分组 | Dea 仅在低不确定性环境显著 |
+| 4 | 产业聚集度调节 | lq_emp 中位数分组 | 两组均不显著 |
+| 5 | 绿色专利替代DV | Dea → LnGreen / LnGreen_Inv / LnGreen_Grant | Dea 与所有绿色专利指标显著正相关 (p<0.001) |
+| 6 | 倒U型检验 | Dea + Dea² → res | 二次项显著负 (p=0.006), 转折点 Dea=0.69, 在样本内 |
+
+所有回归均使用 PanelOLS 双向固定效应（企业 + 年份），聚类标准误。
+输出：`output/additional_tests_results.csv`
+
 ## 项目结构
 
 ```
@@ -377,7 +395,8 @@ do code/03_main_analysis.do
 │   ├── 08_heterogeneity.py           异质性分析
 │   ├── 09_confounding.py             混淆因素
 │   ├── 10_robustness.py              附加稳健性
-│   └── 11_tables.py                  发表格式表格
+│   ├── 11_tables.py                  发表格式表格
+│   └── 13_additional_tests.py         额外稳健性 & 机制检验
 ├── output/
 │   ├── tables/                       回归结果（.txt / .xls）
 │   ├── 中间结果/                     res_v2 构建中间产物
