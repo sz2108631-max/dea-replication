@@ -15,13 +15,12 @@ build/
 
 # macOS
 .DS_Store
-.DS_Store?
 
-# Data files (large / proprietary)
+# Data (proprietary / large)
 data/
 raw_data/
 
-# Output data (large)
+# Intermediate output
 output/replication_panel_own.dta
 output/中间结果/
 

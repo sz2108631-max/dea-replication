@@ -6,7 +6,7 @@
 clear all
 set more off
 set matsize 800
-cap mkdir output
+cap mkdir output/tables
 
 * ============================================================================
 * 0. 数据导入
@@ -50,7 +50,7 @@ eststo clear
 cap reghdfe res Dea $c, absorb(id year) cluster(city)
 if _rc == 0 {
     eststo m1_dea
-    outreg2 using output/table1_baseline.xls, replace dec(4) e(all) keep(Dea $c)
+    outreg2 using output/tables/table1_baseline.xls, replace dec(4) e(all) keep(Dea $c)
     di "  [OK] Dea"
 }
 else di "  [FAIL] Dea (rc=" _rc ")"
@@ -58,7 +58,7 @@ else di "  [FAIL] Dea (rc=" _rc ")"
 cap reghdfe res Breadth $c, absorb(id year) cluster(city)
 if _rc == 0 {
     eststo m1_breadth
-    outreg2 using output/table1_baseline.xls, append dec(4) e(all) keep(Breadth $c)
+    outreg2 using output/tables/table1_baseline.xls, append dec(4) e(all) keep(Breadth $c)
     di "  [OK] Breadth"
 }
 else di "  [FAIL] Breadth (rc=" _rc ")"
@@ -66,7 +66,7 @@ else di "  [FAIL] Breadth (rc=" _rc ")"
 cap reghdfe res Depth $c, absorb(id year) cluster(city)
 if _rc == 0 {
     eststo m1_depth
-    outreg2 using output/table1_baseline.xls, append dec(4) e(all) keep(Depth $c)
+    outreg2 using output/tables/table1_baseline.xls, append dec(4) e(all) keep(Depth $c)
     di "  [OK] Depth"
 }
 else di "  [FAIL] Depth (rc=" _rc ")"
@@ -74,7 +74,7 @@ else di "  [FAIL] Depth (rc=" _rc ")"
 cap reghdfe res Breadth Depth $c, absorb(id year) cluster(city)
 if _rc == 0 {
     eststo m1_joint
-    outreg2 using output/table1_baseline.xls, append dec(4) e(all) keep(Breadth Depth $c)
+    outreg2 using output/tables/table1_baseline.xls, append dec(4) e(all) keep(Breadth Depth $c)
     di "  [OK] Joint"
 }
 else di "  [FAIL] Joint (rc=" _rc ")"
@@ -123,13 +123,13 @@ if _rc == 0 {
     cap reghdfe res Breadth IC Breadth_ic $c, absorb(id year) cluster(city)
     if _rc == 0 {
         eststo m2_bi
-        outreg2 using output/table2_mechanism.xls, replace dec(4) e(all) keep(Breadth IC Breadth_ic $c)
+        outreg2 using output/tables/table2_mechanism.xls, replace dec(4) e(all) keep(Breadth IC Breadth_ic $c)
         di "  [OK] IC x Breadth"
     }
     cap reghdfe res Depth IC Depth_ic $c, absorb(id year) cluster(city)
     if _rc == 0 {
         eststo m2_di
-        outreg2 using output/table2_mechanism.xls, append dec(4) e(all) keep(Depth IC Depth_ic $c)
+        outreg2 using output/tables/table2_mechanism.xls, append dec(4) e(all) keep(Depth IC Depth_ic $c)
         di "  [OK] IC x Depth"
     }
 }
@@ -141,13 +141,13 @@ if _rc == 0 {
     cap reghdfe res Breadth cost Breadth_cost $c, absorb(id year) cluster(city)
     if _rc == 0 {
         eststo m2_bc
-        outreg2 using output/table2_mechanism.xls, append dec(4) e(all) keep(Breadth cost Breadth_cost $c)
+        outreg2 using output/tables/table2_mechanism.xls, append dec(4) e(all) keep(Breadth cost Breadth_cost $c)
         di "  [OK] cost x Breadth"
     }
     cap reghdfe res Depth cost Depth_cost $c, absorb(id year) cluster(city)
     if _rc == 0 {
         eststo m2_dc
-        outreg2 using output/table2_mechanism.xls, append dec(4) e(all) keep(Depth cost Depth_cost $c)
+        outreg2 using output/tables/table2_mechanism.xls, append dec(4) e(all) keep(Depth cost Depth_cost $c)
         di "  [OK] cost x Depth"
     }
 }
@@ -165,9 +165,9 @@ if _rc == 0 {
     set seed 54
     cap bdiff, group(region_group) model(reghdfe res Dea $c, absorb(id year) cluster(city)) reps(500) bs first detail
     cap reghdfe res Dea $c if region_group==0, absorb(id year) cluster(city)
-    cap outreg2 using output/table3_heterogeneity.xls, replace dec(4) e(all) keep(Dea $c)
+    cap outreg2 using output/tables/table3_heterogeneity.xls, replace dec(4) e(all) keep(Dea $c)
     cap reghdfe res Dea $c if region_group==1, absorb(id year) cluster(city)
-    cap outreg2 using output/table3_heterogeneity.xls, append dec(4) e(all) keep(Dea $c)
+    cap outreg2 using output/tables/table3_heterogeneity.xls, append dec(4) e(all) keep(Dea $c)
     di "  [OK] 区域"
 }
 else di "  [SKIP] area_1"
@@ -179,9 +179,9 @@ if _rc == 0 {
     set seed 54
     cap bdiff, group(soe_group) model(reghdfe res Dea $c, absorb(id year) cluster(city)) reps(500) bs first detail
     cap reghdfe res Dea $c if soe_group==1, absorb(id year) cluster(city)
-    cap outreg2 using output/table3_heterogeneity.xls, append dec(4) e(all) keep(Dea $c)
+    cap outreg2 using output/tables/table3_heterogeneity.xls, append dec(4) e(all) keep(Dea $c)
     cap reghdfe res Dea $c if soe_group==0, absorb(id year) cluster(city)
-    cap outreg2 using output/table3_heterogeneity.xls, append dec(4) e(all) keep(Dea $c)
+    cap outreg2 using output/tables/table3_heterogeneity.xls, append dec(4) e(all) keep(Dea $c)
     di "  [OK] 产权"
 }
 else di "  [SKIP] soe"
@@ -194,9 +194,9 @@ if _rc == 0 {
     set seed 54
     cap bdiff, group(hhi_group) model(reghdfe res Dea $c, absorb(id year) cluster(city)) reps(500) bs first detail
     cap reghdfe res Dea $c if hhi_group==0, absorb(id year) cluster(city)
-    cap outreg2 using output/table3_heterogeneity.xls, append dec(4) e(all) keep(Dea $c)
+    cap outreg2 using output/tables/table3_heterogeneity.xls, append dec(4) e(all) keep(Dea $c)
     cap reghdfe res Dea $c if hhi_group==1, absorb(id year) cluster(city)
-    cap outreg2 using output/table3_heterogeneity.xls, append dec(4) e(all) keep(Dea $c)
+    cap outreg2 using output/tables/table3_heterogeneity.xls, append dec(4) e(all) keep(Dea $c)
     di "  [OK] 市场竞争"
 }
 else di "  [SKIP] hhi_d"
@@ -207,9 +207,9 @@ if _rc == 0 {
     set seed 54
     cap bdiff, group(hightech) model(reghdfe res Dea $c, absorb(id year) cluster(city)) reps(500) bs first detail
     cap reghdfe res Dea $c if hightech==0, absorb(id year) cluster(city)
-    cap outreg2 using output/table3_heterogeneity.xls, append dec(4) e(all) keep(Dea $c)
+    cap outreg2 using output/tables/table3_heterogeneity.xls, append dec(4) e(all) keep(Dea $c)
     cap reghdfe res Dea $c if hightech==1, absorb(id year) cluster(city)
-    cap outreg2 using output/table3_heterogeneity.xls, append dec(4) e(all) keep(Dea $c)
+    cap outreg2 using output/tables/table3_heterogeneity.xls, append dec(4) e(all) keep(Dea $c)
     di "  [OK] 高科技"
 }
 else di "  [SKIP] hightech"
@@ -225,7 +225,7 @@ if _rc == 0 {
     foreach var in Dea Breadth Depth {
         cap reghdfe res `var' PageRank_C1 `var'_PageRankC $c, absorb(id year) cluster(city)
         if _rc == 0 {
-            outreg2 using output/table4_pagerank.xls, append dec(4) e(all) keep(`var' PageRank_C1 `var'_PageRankC $c)
+            outreg2 using output/tables/table4_pagerank.xls, append dec(4) e(all) keep(`var' PageRank_C1 `var'_PageRankC $c)
             di "  [OK] PageRank_C x `var'"
         }
     }
@@ -233,7 +233,7 @@ if _rc == 0 {
     foreach var in Dea Breadth Depth {
         cap reghdfe res `var' PageRank_P1 `var'_PageRankP $c, absorb(id year) cluster(city)
         if _rc == 0 {
-            outreg2 using output/table4_pagerank.xls, append dec(4) e(all) keep(`var' PageRank_P1 `var'_PageRankP $c)
+            outreg2 using output/tables/table4_pagerank.xls, append dec(4) e(all) keep(`var' PageRank_P1 `var'_PageRankP $c)
             di "  [OK] PageRank_P x `var'"
         }
     }
@@ -252,7 +252,7 @@ foreach dv in Disw_s Disw_c {
         foreach var in Dea Breadth Depth {
             cap reghdfe `dv' `var' $c, absorb(id year) cluster(city)
             if _rc == 0 {
-                outreg2 using output/table5_distance.xls, append dec(4) e(all) keep(`var' $c)
+                outreg2 using output/tables/table5_distance.xls, append dec(4) e(all) keep(`var' $c)
                 di "  [OK] `dv' <- `var'"
             }
         }
@@ -270,7 +270,7 @@ foreach v in Dea_count Breadth_count Depth_count {
     if _rc == 0 {
         cap reghdfe res `v' $c, absorb(id year) cluster(city)
         if _rc == 0 {
-            outreg2 using output/tableA8_count.xls, append dec(4) e(all) keep(`v' $c)
+            outreg2 using output/tables/tableA8_count.xls, append dec(4) e(all) keep(`v' $c)
             di "  [OK] `v'"
         }
     }
@@ -291,7 +291,7 @@ else {
         foreach var in Dea Breadth Depth {
             cap reghdfe res `var' $c, absorb(id year year_ind) cluster(city)
             if _rc == 0 {
-                outreg2 using output/tableA10_year_ind_fe.xls, append dec(4) e(all) keep(`var' $c)
+                outreg2 using output/tables/tableA10_year_ind_fe.xls, append dec(4) e(all) keep(`var' $c)
                 di "  [OK] `var'"
             }
         }
@@ -306,7 +306,7 @@ di _n "====== 附表9: PPML ======"
 foreach var in Dea Breadth Depth {
     cap ppmlhdfe res `var' $c, absorb(id year) cluster(city)
     if _rc == 0 {
-        outreg2 using output/tableA9_ppml.xls, append dec(4) e(all) keep(`var' $c)
+        outreg2 using output/tables/tableA9_ppml.xls, append dec(4) e(all) keep(`var' $c)
         di "  [OK] PPML `var'"
     }
     else di "  [SKIP] PPML `var' (rc=" _rc ")"
@@ -321,7 +321,7 @@ cap confirm numeric variable shandian
 if _rc == 0 {
     cap ivreghdfe res (Dea=shandian) $c, absorb(id year) cluster(city)
     if _rc == 0 {
-        outreg2 using output/tableA6_iv.xls, replace dec(4) e(all) keep(Dea $c)
+        outreg2 using output/tables/tableA6_iv.xls, replace dec(4) e(all) keep(Dea $c)
         di "  [OK] IV Dea"
         * 第一阶段 F 统计量
         cap reghdfe Dea shandian $c, absorb(id year) cluster(city)
@@ -337,7 +337,7 @@ if _rc == 0 {
             reghdfe Dea shandian $c, absorb(id year) cluster(city)
             predict Dea_hat, xb
             reghdfe res Dea_hat $c, absorb(id year) cluster(city)
-            outreg2 using output/tableA6_iv.xls, replace dec(4) e(all) keep(Dea_hat $c)
+            outreg2 using output/tables/tableA6_iv.xls, replace dec(4) e(all) keep(Dea_hat $c)
             drop Dea_hat
             di "  [OK] IV (手动2SLS)"
         }
@@ -355,7 +355,7 @@ if _rc == 0 {
     foreach var in Dea Breadth Depth {
         cap reghdfe res `var' $c if DID==0, absorb(id year) cluster(city)
         if _rc == 0 {
-            outreg2 using output/tableA11_exclude_policy.xls, append dec(4) e(all) keep(`var' $c)
+            outreg2 using output/tables/tableA11_exclude_policy.xls, append dec(4) e(all) keep(`var' $c)
             di "  [OK] `var' (排除DID试点)"
         }
     }
@@ -368,7 +368,7 @@ if _rc == 0 {
     foreach var in Dea Breadth Depth {
         cap reghdfe res `var' $c if exchange_treat==0, absorb(id year) cluster(city)
         if _rc == 0 {
-            outreg2 using output/tableA11_exclude_policy.xls, append dec(4) e(all) keep(`var' $c)
+            outreg2 using output/tables/tableA11_exclude_policy.xls, append dec(4) e(all) keep(`var' $c)
             di "  [OK] `var' (排除数交所试点)"
         }
     }
@@ -396,7 +396,7 @@ if _rc == 0 {
         * 1:1 最近邻匹配
         cap psmatch2 Dea_group, outcome(res) pscore(pscore) neighbor(1) caliper(0.05) common
         if _rc == 0 {
-            outreg2 using output/tableA7_psm.xls, replace dec(4) e(all) keep(Dea $c)
+            outreg2 using output/tables/tableA7_psm.xls, replace dec(4) e(all) keep(Dea $c)
             di "  [OK] PSM ATT"
         }
         cap drop pscore _pscore _treated _support _weight _id _n1 _nn

@@ -1,77 +1,72 @@
-# Replication Package: 企业数据要素应用能力与供应链韧性
+# Replication Package: Data Element Application and Supply Chain Resilience
 
-This repository provides a replication package for 巫强 (2026) "企业数据要素应用能力与供应链韧性：广度与深度的差异化机制".
-
-## Overview
-
-The project constructs a firm-level supply chain resilience measure (`res_v2`) using an autoencoder-based dimensionality reduction combined with TOPSIS, then replicates the key empirical analyses from the paper.
+Replication code for 巫强 (2026) "企业数据要素应用能力与供应链韧性：广度与深度的差异化机制".
 
 ## Project Structure
 
 ```
 .
-├── replication.do              # Main Stata replication script
-├── src/
-│   ├── 24_construct_res_v2.py  # Construct supply chain resilience (res_v2)
-│   ├── 18_prepare_stata_data.py # Merge data for Stata analysis
-│   ├── 01_mechanism_interaction.py
-│   ├── 02_heterogeneity_enhanced.py
-│   ├── 03_placebo_test.py
-│   ├── 04_psm_matching.py
-│   ├── 06_iv_regression.py
-│   └── 20_descriptive_stats.py
-├── data/                       # Input data files
-├── raw_data/                # Raw financial and patent data
-└── output/                     # Regression output tables
+├── README.md
+├── LICENSE
+├── .gitignore
+├── requirements.txt
+├── code/
+│   ├── 01_construct_resilience.py   # Construct supply chain resilience (res)
+│   ├── 02_prepare_panel.py          # Merge all variables into analysis panel
+│   ├── 03_main_analysis.do          # Main Stata replication (Tables 1–5, Appendix)
+│   ├── 04_placebo.py                # Placebo test (permutation)
+│   ├── 05_psm.py                    # Propensity score matching
+│   ├── 06_iv.py                     # Instrumental variable regression
+│   ├── 07_mechanism.py              # Mechanism analysis (interaction terms)
+│   ├── 08_heterogeneity.py           # Heterogeneity analysis
+│   ├── 09_confounding.py            # Confounding policy checks
+│   ├── 10_robustness.py             # Additional robustness checks
+│   └── 11_tables.py                 # Publication-format tables
+├── output/
+│   └── tables/                      # Regression output (.txt / .xls)
+├── data/                            # Input data (not included)
+└── raw_data/                        # Raw financial & patent data (not included)
 ```
 
 ## Requirements
 
-- **Stata 16+** with `reghdfe`, `ivreghdfe`, `ppmlhdfe`, `outreg2`, `bdiff` packages
-- **Python 3.9+** with `pandas`, `numpy`, `scikit-learn`, `pyreadstat`, `scipy`
+- **Stata 16+** with `reghdfe`, `ivreghdfe`, `ppmlhdfe`, `outreg2`, `bdiff`
+- **Python 3.9+** with dependencies listed in `requirements.txt`
 
-Install Python dependencies:
 ```bash
-pip install pandas numpy scikit-learn pyreadstat scipy openpyxl
+pip install -r requirements.txt
 ```
 
 ## Quick Start
 
-### Step 1: Construct supply chain resilience (res_v2)
+### Step 1: Construct resilience measure
 
 ```bash
-python src/24_construct_res_v2.py
+python code/01_construct_resilience.py
 ```
 
-This reads raw financial data from `raw_data/` and produces `output/中间结果/res_v2_panel.dta`.
+Reads raw financial data from `raw_data/`, produces `output/中间结果/res_v2_panel.dta`.
 
-### Step 2: Prepare the analysis dataset
+### Step 2: Prepare analysis panel
 
 ```bash
-python src/18_prepare_stata_data.py
+python code/02_prepare_panel.py
 ```
 
-This merges `res_v2`, DEA variables, controls, and auxiliary data into `output/replication_panel_own.dta`.
+Merges resilience measure, DEA variables, controls, and auxiliary data into `output/replication_panel_own.dta`.
 
 ### Step 3: Run Stata replication
 
 ```stata
-do replication.do
+do code/03_main_analysis.do
 ```
 
-Outputs tables to `output/table*.txt` and `output/table*.xls`.
+Outputs tables to `output/tables/`.
 
-## Data Sources
+## Data
 
-The analysis uses the following data sources:
-
-- **DEA variables**: Firm-level data element application capability (text-mining based)
-- **Financial data**: CSMAR balance sheets and income statements
-- **Control variables**: Standard firm-level controls (size, leverage, age, etc.)
-- **Auxiliary data**: Internal control index, transaction costs, PageRank, geographic distance, lightning frequency, policy pilots
-
-Due to data license restrictions, raw data files are not included. Please contact the authors for data access.
+Due to license restrictions, input data files (`data/`, `raw_data/`) are not included in this repository. Place the required data files in the respective directories before running the pipeline.
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+MIT License. See [LICENSE](LICENSE).
