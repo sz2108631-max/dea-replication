@@ -16,11 +16,10 @@ build/
 # macOS
 .DS_Store
 
-# Data (proprietary / large)
-data/
-raw_data/
+# Large unnecessary data (5.7 GB)
+data/数商识别/
 
-# Intermediate output
+# Generated outputs (reproducible via pipeline)
 output/replication_panel_own.dta
 output/中间结果/
 
