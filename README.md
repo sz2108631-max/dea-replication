@@ -209,27 +209,6 @@ do code/03_main_analysis.do
 - 固定效应：企业（`id`）+ 年份（`year`），聚类标准误：城市（`city`）
 - 生成 22 个回归表格（表 1–5 + 附录 A6–A11），输出至 `output/tables/`
 
-### Step 4：Python 稳健性检验
-
-```bash
-python code/12_dfbeta.py
-```
-
-**DFBETA 影响统计量分析** — 检验 Dea 系数对个别观测的敏感性：
-1. Pooled OLS 估计基准模型，计算每个观测对 Dea 系数的 DFBETA 影响统计量
-2. 按 DFBETA 绝对值从大到小排序，在 **P2 / P3 / P5 / P10** 四个阈值下（即剔除最有影响力的 2% / 3% / 5% / 10% 样本）重新估计 PanelOLS
-3. 若仅剔除 3% 样本即可翻转系数符号或显著性，则基准结果不稳健
-
-**关键结果：**
-
-| 阈值 | 剔除样本 | Dea 系数 | p 值 |
-|------|----------|----------|------|
-| 全样本 | 0 | −0.0013*** | 0.004 |
-| DFBETA > P3 | 863 (3%) | −0.0023*** | <0.001 |
-| DFBETA > P5 | 1,437 (5%) | −0.0023*** | <0.001 |
-
-输出：`output/dfbeta_regression_report.csv`
-
 ## 项目结构
 
 ```
@@ -246,8 +225,7 @@ python code/12_dfbeta.py
 │   ├── 08_heterogeneity.py           异质性分析
 │   ├── 09_confounding.py             混淆因素
 │   ├── 10_robustness.py              附加稳健性
-│   ├── 11_tables.py                  发表格式表格
-│   └── 12_dfbeta.py                  DFBETA 影响统计量分析
+│   └── 11_tables.py                  发表格式表格
 ├── output/
 │   ├── tables/                       回归结果（.txt / .xls）
 │   ├── 中间结果/                     res_v2 构建中间产物
