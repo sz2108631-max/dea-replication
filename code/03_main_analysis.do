@@ -7,6 +7,8 @@ clear all
 set more off
 set matsize 800
 cap mkdir output/tables
+cap mkdir output/logs
+log using "output/logs/03_main_analysis.log", replace text
 
 * ============================================================================
 * 0. 数据导入
@@ -432,3 +434,5 @@ di "    - 附图5-7 安慰剂检验图"
 di "    - 论文异质性分组 (shushang/market/huanjing_group 需额外生成)"
 di ""
 di "  回归设定: reghdfe + absorb(id year) + cluster(city)"
+
+log close

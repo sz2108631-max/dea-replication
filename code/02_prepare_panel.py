@@ -34,10 +34,21 @@ print(f"   DEA: {len(df):,} obs, {df['stkcode'].nunique():,} firms")
 ctrl, _ = pyreadstat.read_dta(CTRL_PATH)
 ctrl["stkcode"] = ctrl["stkcode"].astype(str).str.zfill(6)
 ctrl["year"] = ctrl["year"].astype(int)
+
+# 构造控制变量（原始数据集使用不同命名）
+ctrl["lnsize"] = np.log(ctrl["totalassets"] + 1)
+ctrl["klr"] = ctrl["totalassets"] / (ctrl["staffnumber"] + 1)  # 资本劳动比
+ctrl["bsize"] = ctrl["board"]                                   # 董事会规模
+ctrl["lnrd"] = np.log(ctrl["rdspendsum"].fillna(0) + 1)         # 研发投入
+ctrl["indrate"] = ctrl["inddirect"] / (ctrl["board"] + 1)       # 独立董事比例
+ctrl["own"] = ctrl["ownership"]                                  # 所有权性质
+ctrl["ind_str"] = ctrl["nnindnme"]                              # 行业名称
+ctrl = ctrl.rename(columns={"city": "city_x", "province": "province_x"})
+
 ctrl_cols = ["stkcode", "year", "lnage", "lnsize", "klr", "lev",
              "bsize", "dual", "lnrd", "indrate", "own",
-             "ind", "ind_str", "ind1", "citycode", "city_x",
-             "province_x", "soe", "area_1", "hhi_d", "hightech", "STPT"]
+             "ind", "ind1", "citycode", "city_x",
+             "soe", "area_1", "hhi_d", "hightech", "STPT"]
 df = df.merge(ctrl[[c for c in ctrl_cols if c in ctrl.columns]],
               on=["stkcode", "year"], how="left")
 print(f"   + 控制变量: {len(df):,} obs")
