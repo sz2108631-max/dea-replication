@@ -48,3 +48,9 @@ raw_data/计算代码.do
 config/word2vec_mda.model*
 cmda_texts/
 models/Erlangshen-Roberta-110M-NLI/
+
+# Raw data (too large for GitHub, included in submission zip)
+原始数据/
+
+# Large intermediate outputs
+output/panel_merged.csv
